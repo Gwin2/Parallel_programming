@@ -44,8 +44,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-username/petsc-gmres-solver.git
-cd petsc-gmres-solver
+git clone https://github.com/Gwin2/Parallel_programming.git
+cd Parallel_programming
 
 # Установка зависимостей (Ubuntu/Debian)
 sudo apt-get update

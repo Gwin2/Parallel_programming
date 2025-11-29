@@ -1,0 +1,35 @@
+Parallel_programming/
+├── src/
+│   ├── main.c
+│   ├── matrix_utils.c
+│   ├── matrix_utils.h
+│   ├── solver.c
+│   └── solver.h
+├── tests/
+│   ├── test_solver.c
+│   ├── test_matrices/
+│   │   ├── diagonal_well_conditioned.m
+│   │   ├── laplace2d_small.m
+│   │   └── random_sparse.m
+│   └── test_runner.sh
+├── examples/
+│   ├── poisson2d.c
+│   ├── heat_equation.c
+│   └── read_matrix_file.c
+├── docs/
+│   ├── algorithm.md
+│   ├── installation.md
+│   └── results.md
+├── scripts/
+│   ├── build.sh
+│   ├── run_benchmarks.sh
+│   └── generate_matrices.py
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+├── Makefile
+├── CMakeLists.txt
+├── requirements.txt
+├── .gitignore
+├── structure.txt
+└── README.md
