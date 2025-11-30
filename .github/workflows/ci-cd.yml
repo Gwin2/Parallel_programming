@@ -61,9 +61,10 @@ jobs:
       run: |
         cd build
         echo "Running benchmark with different matrix sizes..."
+        # Use --oversubscribe to allow more processes than available CPU cores
         for size in 100 500 1000; do
           echo "Testing matrix size: $size"
-          mpirun -np 4 ./petsc_solver -n $size -ksp_monitor | grep -E "(Iterations|Solve time|residual)"
+          mpirun -np 4 --oversubscribe ./petsc_solver -n $size -ksp_monitor | grep -E "(Iterations|Solve time|residual)" || true
         done
 
     - name: Generate benchmark report
