@@ -8,6 +8,7 @@ typedef struct {
     PC pc;
     Mat A;
     Vec x, b;
+    PetscInt matrix_size;
     PetscInt iterations;
     PetscReal residual;
     PetscLogDouble solve_time;

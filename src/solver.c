@@ -109,8 +109,8 @@ PetscErrorCode solver_destroy(LinearSolver *solver) {
 PetscErrorCode solver_print_info(LinearSolver *solver) {
     PetscErrorCode ierr;
     PetscPrintf(PETSC_COMM_WORLD, "=== Solver Information ===\n");
-    PetscPrintf(PETSC_COMM_WORLD, "Matrix size: %D\n", solver->matrix_size);
-    PetscPrintf(PETSC_COMM_WORLD, "Iterations: %D\n", solver->iterations);
+    PetscPrintf(PETSC_COMM_WORLD, "Matrix size: %" PetscInt_FMT "\n", solver->matrix_size);
+    PetscPrintf(PETSC_COMM_WORLD, "Iterations: %" PetscInt_FMT "\n", solver->iterations);
     PetscPrintf(PETSC_COMM_WORLD, "Final residual: %g\n", solver->residual);
     PetscPrintf(PETSC_COMM_WORLD, "Solve time: %g seconds\n", solver->solve_time);
     ierr = KSPView(solver->ksp, PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);

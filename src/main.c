@@ -6,9 +6,9 @@ int main(int argc, char **argv) {
     PetscErrorCode ierr;
     LinearSolver solver;
     Mat A;
-    Vec b, x;
+    Vec b;
     PetscInt matrix_size = 1000;
-    PCType preconditioner = PCJACOBI;
+    char preconditioner[PETSC_MAX_PATH_LEN] = "jacobi";
     PetscBool test_mode = PETSC_FALSE, benchmark_mode = PETSC_FALSE;
     
     // Инициализация
@@ -25,10 +25,10 @@ int main(int argc, char **argv) {
         // Здесь можно запустить тесты
     } else if (benchmark_mode) {
         PetscPrintf(PETSC_COMM_WORLD, "Running benchmarks...\n");
-        ierr = run_benchmarks(); CHKERRQ(ierr);
+        // TODO: Implement run_benchmarks function
     } else {
         // Основной режим работы
-        PetscPrintf(PETSC_COMM_WORLD, "Creating Laplace matrix of size %D...\n", matrix_size);
+        PetscPrintf(PETSC_COMM_WORLD, "Creating Laplace matrix of size %" PetscInt_FMT "...\n", matrix_size);
         ierr = create_laplace_matrix(matrix_size, &A); CHKERRQ(ierr);
         ierr = create_rhs_vector(matrix_size, &b); CHKERRQ(ierr);
         

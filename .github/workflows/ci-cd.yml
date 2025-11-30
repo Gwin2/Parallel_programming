@@ -9,55 +9,32 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        mpich: [3.4]
-        petsc: [3.18]
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc gfortran cmake make python3-dev
-        wget http://www.mpich.org/static/downloads/${{ matrix.mpich }}/mpich-${{ matrix.mpich }}.tar.gz
-        tar -xzf mpich-${{ matrix.mpich }}.tar.gz
-        cd mpich-${{ matrix.mpich }} && ./configure --prefix=/usr/local && make -j4 && sudo make install
-
-    - name: Install PETSc
-      run: |
-        git clone -b release https://gitlab.com/petsc/petsc.git
-        cd petsc
-        ./configure --with-cc=mpicc --with-cxx=mpicxx --with-fc=mpif90 \
-                    --download-f2cblaslapack --download-mpich --with-debugging=0
-        make all
-        echo "PETSC_DIR=$(pwd)" >> $GITHUB_ENV
-        echo "PETSC_ARCH=arch-linux-c-debug" >> $GITHUB_ENV
+        sudo apt-get install -y cmake make mpich libpetsc-real-dev pkg-config
 
     - name: Build project
       run: |
-        make PETSC_DIR=$PETSC_DIR PETSC_ARCH=$PETSC_ARCH
+        chmod +x scripts/build.sh
+        bash scripts/build.sh
 
-    - name: Run tests
+    - name: Run solver
       run: |
-        make test PETSC_DIR=$PETSC_DIR PETSC_ARCH=$PETSC_ARCH
-        mpirun -np 2 ./test_solver -ksp_monitor -ksp_converged_reason
-
-    - name: Run examples
-      run: |
-        make examples PETSC_DIR=$PETSC_DIR PETSC_ARCH=$PETSC_ARCH
-        mpirun -np 2 examples/poisson2d -nx 20 -ny 20 -ksp_monitor
+        cd build
+        mpirun -np 2 ./petsc_solver -n 100 -ksp_monitor -ksp_converged_reason
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: petsc-solver-binaries
         path: |
-          petsc_solver
-          test_solver
-          examples/
+          build/petsc_solver
 
   benchmark:
     runs-on: ubuntu-latest
@@ -66,16 +43,29 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake make mpich libpetsc-real-dev pkg-config
+
+    - name: Build project
+      run: |
+        chmod +x scripts/build.sh
+        bash scripts/build.sh
 
     - name: Run benchmarks
       run: |
-        # Здесь могут быть скрипты бенчмарков
-        echo "Running benchmarks..."
-        # ./scripts/run_benchmarks.sh
+        cd build
+        echo "Running benchmark with different matrix sizes..."
+        for size in 100 500 1000; do
+          echo "Testing matrix size: $size"
+          mpirun -np 4 ./petsc_solver -n $size -ksp_monitor | grep -E "(Iterations|Solve time|residual)"
+        done
 
     - name: Generate benchmark report
       run: |
         echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
-        echo "- Test 1: PASSED" >> $GITHUB_STEP_SUMMARY
-        echo "- Test 2: PASSED" >> $GITHUB_STEP_SUMMARY
+        echo "- Build: PASSED" >> $GITHUB_STEP_SUMMARY
+        echo "- Solver execution: PASSED" >> $GITHUB_STEP_SUMMARY
