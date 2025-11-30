@@ -25,6 +25,13 @@ fi
 mkdir -p build
 cd build
 
+# Удаление старого кэша CMake, если он существует (для избежания ошибок при смене пути)
+if [ -f CMakeCache.txt ]; then
+    echo "Removing old CMake cache..."
+    rm -f CMakeCache.txt
+    rm -rf CMakeFiles
+fi
+
 # Конфигурация
 cmake ..
 

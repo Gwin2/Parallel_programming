@@ -22,6 +22,8 @@ jobs:
     - name: Build project
       run: |
         chmod +x scripts/build.sh
+        # Clean build directory to avoid CMake cache issues
+        rm -rf build
         bash scripts/build.sh
 
     - name: Run solver
@@ -53,6 +55,8 @@ jobs:
     - name: Build project
       run: |
         chmod +x scripts/build.sh
+        # Clean build directory to avoid CMake cache issues
+        rm -rf build
         bash scripts/build.sh
 
     - name: Run benchmarks
