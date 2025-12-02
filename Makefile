@@ -9,7 +9,7 @@ LIBS = $(shell pkg-config --libs petsc)
 # Цели
 TARGET = petsc_solver
 TEST_TARGET = test_solver
-EXAMPLE_TARGETS = examples/poisson2d examples/heat_equation
+EXAMPLE_TARGETS = examples/poisson2d examples/heat_equation examples/read_matrix_file
 
 # Исходные файлы
 SRCS = src/main.c src/solver.c src/matrix_utils.c
@@ -37,11 +37,21 @@ examples: $(EXAMPLE_TARGETS)
 examples/%: examples/%.c $(filter-out src/main.o, $(OBJS))
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $^ $(LIBS)
 
+benchmark: $(TARGET)
+	@echo "Running benchmarks..."
+	./scripts/run_benchmarks.sh
+
 clean:
 	rm -f $(TARGET) $(TEST_TARGET) $(OBJS) $(TEST_OBJS) $(EXAMPLE_TARGETS)
 
 install-deps:
 	sudo apt-get update
-	sudo apt-get install -y mpich libpetsc-dev petsc-dev
+	sudo apt-get install -y mpich libpetsc-dev petsc-dev cmake build-essential python3 python3-pip
 
-.PHONY: all test examples clean install-deps
+install-python-deps:
+	pip3 install -r requirements.txt
+
+format:
+	find src tests examples -name "*.c" -o -name "*.h" | xargs clang-format -i
+
+.PHONY: all test examples benchmark clean install-deps install-python-deps format

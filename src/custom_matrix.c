@@ -1,0 +1,32 @@
+#include "solver.h"
+#include "matrix_utils.h"
+
+int main(int argc, char **argv) {
+    PetscErrorCode ierr;
+    LinearSolver solver;
+    Mat A;
+    Vec b, x;
+    
+    solver_initialize(argc, argv);
+    
+    // Создание пользовательской матрицы
+    create_laplace_matrix(1000, &A);
+    create_rhs_vector(1000, &b);
+    
+    // Настройка решателя
+    solver_create(&solver, A);
+    solver_set_preconditioner(&solver, PCILU);
+    solver_set_tolerances(&solver, 1e-8, 1e-10, 1e5, 1000);
+    
+    // Решение
+    solver_solve(&solver, b, solver.x);
+    solver_print_info(&solver);
+    
+    // Очистка
+    solver_destroy(&solver);
+    MatDestroy(&A);
+    VecDestroy(&b);
+    
+    solver_finalize();
+    return 0;
+}

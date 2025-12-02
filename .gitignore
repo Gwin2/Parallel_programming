@@ -1,0 +1,52 @@
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.dylib
+
+# Executables
+petsc_solver
+test_solver
+examples/poisson2d
+examples/heat_equation
+examples/read_matrix_file
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+docs/_build/
+
+# Log files
+*.log
+*.out
+*.err
+
+# Temporary files
+*.tmp
+*.temp
+
+# PETSc files
+*.pyc
+__pycache__/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Python virtual environment
+venv/
+.env
+
+# Benchmark results
+benchmark_results/
+performance_data/
+
+# Test data
+test_output/

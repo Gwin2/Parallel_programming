@@ -2,6 +2,36 @@
 #include "solver.h"
 #include "matrix_utils.h"
 
+PetscErrorCode run_benchmarks() {
+    PetscErrorCode ierr;
+    PetscPrintf(PETSC_COMM_WORLD, "=== Running Benchmarks ===\n");
+    
+    // Тестирование различных размеров матриц
+    PetscInt sizes[] = {100, 500, 1000, 2000};
+    PetscInt num_sizes = sizeof(sizes) / sizeof(sizes[0]);
+    
+    for (PetscInt i = 0; i < num_sizes; i++) {
+        Mat A;
+        Vec b, x;
+        SolverResult result;
+        
+        ierr = create_laplace_matrix(sizes[i], &A); CHKERRQ(ierr);
+        ierr = create_rhs_vector(sizes[i], &b); CHKERRQ(ierr);
+        ierr = VecDuplicate(b, &x); CHKERRQ(ierr);
+        
+        ierr = solver_benchmark(A, b, x, PCJACOBI, &result); CHKERRQ(ierr);
+        
+        PetscPrintf(PETSC_COMM_WORLD, "Size: %d, Iterations: %d, Time: %g sec, Residual: %g\n",
+                   sizes[i], result.iterations, result.solve_time, result.residual);
+        
+        ierr = MatDestroy(&A); CHKERRQ(ierr);
+        ierr = VecDestroy(&b); CHKERRQ(ierr);
+        ierr = VecDestroy(&x); CHKERRQ(ierr);
+    }
+    
+    return 0;
+}
+
 int main(int argc, char **argv) {
     PetscErrorCode ierr;
     LinearSolver solver;
@@ -23,6 +53,7 @@ int main(int argc, char **argv) {
     if (test_mode) {
         PetscPrintf(PETSC_COMM_WORLD, "Running in test mode...\n");
         // Здесь можно запустить тесты
+        ierr = run_benchmarks(); CHKERRQ(ierr);
     } else if (benchmark_mode) {
         PetscPrintf(PETSC_COMM_WORLD, "Running benchmarks...\n");
         ierr = run_benchmarks(); CHKERRQ(ierr);

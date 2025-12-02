@@ -1,7 +1,6 @@
 #include <petscksp.h>
 #include "../src/solver.h"
 #include "../src/matrix_utils.h"
-#include <petsctest.h>
 
 PetscErrorCode test_diagonal_system() {
     PetscErrorCode ierr;

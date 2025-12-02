@@ -1,22 +1,36 @@
 Структура проекта
 
-├── src/                    # Исходный код
-│   ├── main.c             # Главная программа
-│   ├── solver.[ch]        # Основной решатель
-│   └── matrix_utils.[ch]  # Утилиты для работы с матрицами
-├── tests/                  # Тесты
-│   ├── test_solver.c      # Основные тесты
-│   └── test_runner.sh     # Скрипт запуска тестов
-├── examples/              # Примеры использования
-│   ├── poisson2d.c        # 2D уравнение Пуассона
-│   └── heat_equation.c    # Уравнение теплопроводности
-├── docs/                  # Документация
-│   ├── algorithm.md       # Описание алгоритма
-│   └── results.md         # Результаты тестов
-├── scripts/               # Вспомогательные скрипты
-│   ├── build.sh           # Скрипт сборки
-│   └── run_benchmarks.sh  # Скрипт бенчмарков
-├── .github/               # CI/CD конфигурация
+├── src/
+│   ├── main.c
+│   ├── matrix_utils.c
+│   ├── matrix_utils.h
+│   ├── solver.c
+│   └── solver.h
+├── tests/
+│   ├── test_solver.c
+│   ├── test_matrices/
+│   │   ├── diagonal_well_conditioned.m
+│   │   ├── laplace2d_small.m
+│   │   └── random_sparse.m
+│   └── test_runner.sh
+├── examples/
+│   ├── poisson2d.c
+│   ├── heat_equation.c
+│   └── read_matrix_file.c
+├── docs/
+│   ├── algorithm.md
+│   ├── installation.md
+│   └── results.md
+├── scripts/
+│   ├── build.sh
+│   ├── run_benchmarks.sh
+│   └── generate_matrices.py
+├── .github/
 │   └── workflows/
-│       └── ci-cd.yml      # GitHub Actions
-└── Makefile               # Сборка проекта
+│       └── ci-cd.yml
+├── Makefile
+├── CMakeLists.txt
+├── requirements.txt
+├── .gitignore
+├── structure.txt
+└── README.md
