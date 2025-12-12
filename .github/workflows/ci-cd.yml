@@ -30,7 +30,7 @@ jobs:
         wget http://www.mpich.org/static/downloads/${{ matrix.mpich }}/mpich-${{ matrix.mpich }}.tar.gz
         tar -xzf mpich-${{ matrix.mpich }}.tar.gz
         cd mpich-${{ matrix.mpich }}
-        ./configure --prefix=/usr/local --disable-fortran
+        ./configure --prefix=/usr/local --disable-fortran --with-device=ch3
         make -j2
         sudo make install
         which mpicc
