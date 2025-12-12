@@ -1,1 +1,88 @@
-#include <petscksp.h>#include "solver.h"#include "matrix_utils.h"PetscErrorCode run_benchmarks() {    PetscErrorCode ierr;    PetscPrintf(PETSC_COMM_WORLD, "=== Running Benchmarks ===\n");    // Тестирование различных размеров матриц    PetscInt sizes[] = {100, 500, 1000, 2000};    PetscInt num_sizes = sizeof(sizes) / sizeof(sizes[0]);    for (PetscInt i = 0; i < num_sizes; i++) {        Mat A;        Vec b, x;        SolverResult result;        ierr = create_laplace_matrix(sizes[i], &A); CHKERRQ(ierr);        ierr = create_rhs_vector(sizes[i], &b); CHKERRQ(ierr);        ierr = VecDuplicate(b, &x); CHKERRQ(ierr);        ierr = solver_benchmark(A, b, x, PCJACOBI, &result); CHKERRQ(ierr);        PetscPrintf(PETSC_COMM_WORLD, "Size: %d, Iterations: %d, Time: %g sec, Residual: %g\n",                   sizes[i], result.iterations, result.solve_time, result.residual);        ierr = MatDestroy(&A); CHKERRQ(ierr);        ierr = VecDestroy(&b); CHKERRQ(ierr);        ierr = VecDestroy(&x); CHKERRQ(ierr);    }    return 0;}int main(int argc, char **argv) {    PetscErrorCode ierr;    LinearSolver solver;    Mat A;    Vec b, x;    PetscInt matrix_size = 1000;    char preconditioner[PETSC_MAX_PATH_LEN];    PetscBool test_mode = PETSC_FALSE, benchmark_mode = PETSC_FALSE;    // Инициализация    ierr = solver_initialize(argc, argv); CHKERRQ(ierr);    // Set default preconditioner    ierr = PetscStrncpy(preconditioner, PCJACOBI, sizeof(preconditioner)); CHKERRQ(ierr);    // Обработка аргументов командной строки    ierr = PetscOptionsGetInt(NULL, NULL, "-n", &matrix_size, NULL); CHKERRQ(ierr);    ierr = PetscOptionsGetString(NULL, NULL, "-pc_type", preconditioner, sizeof(preconditioner), NULL); CHKERRQ(ierr);    ierr = PetscOptionsGetBool(NULL, NULL, "-test", &test_mode, NULL); CHKERRQ(ierr);    ierr = PetscOptionsGetBool(NULL, NULL, "-benchmark", &benchmark_mode, NULL); CHKERRQ(ierr);    if (test_mode) {        PetscPrintf(PETSC_COMM_WORLD, "Running in test mode...\n");        // Здесь можно запустить тесты        ierr = run_benchmarks(); CHKERRQ(ierr);    } else if (benchmark_mode) {        PetscPrintf(PETSC_COMM_WORLD, "Running benchmarks...\n");        ierr = run_benchmarks(); CHKERRQ(ierr);    } else {        // Основной режим работы        PetscPrintf(PETSC_COMM_WORLD, "Creating Laplace matrix of size %D...\n", matrix_size);        ierr = create_laplace_matrix(matrix_size, &A); CHKERRQ(ierr);        ierr = create_rhs_vector(matrix_size, &b); CHKERRQ(ierr);        // Создание решателя        ierr = solver_create(&solver, A); CHKERRQ(ierr);        ierr = solver_set_preconditioner(&solver, preconditioner); CHKERRQ(ierr);        ierr = solver_setup(&solver); CHKERRQ(ierr);        // Решение системы        ierr = solver_solve(&solver, b, solver.x); CHKERRQ(ierr);        // Вывод информации        ierr = solver_print_info(&solver); CHKERRQ(ierr);        // Очистка        ierr = solver_destroy(&solver); CHKERRQ(ierr);        ierr = MatDestroy(&A); CHKERRQ(ierr);        ierr = VecDestroy(&b); CHKERRQ(ierr);    }    ierr = solver_finalize();    return ierr;}
+#include <petscksp.h>
+#include "solver.h"
+#include "matrix_utils.h"
+
+PetscErrorCode run_benchmarks() {
+    PetscErrorCode ierr;
+    PetscPrintf(PETSC_COMM_WORLD, "=== Running Benchmarks ===\n");
+
+    // Тестирование различных размеров матриц
+    PetscInt sizes[] = {100, 500, 1000, 2000};
+    PetscInt num_sizes = sizeof(sizes) / sizeof(sizes[0]);
+
+    for (PetscInt i = 0; i < num_sizes; i++) {
+        Mat A;
+        Vec b, x;
+        SolverResult result;
+
+        ierr = create_laplace_matrix(sizes[i], &A); CHKERRQ(ierr);
+        ierr = create_rhs_vector(sizes[i], &b); CHKERRQ(ierr);
+        ierr = VecDuplicate(b, &x); CHKERRQ(ierr);
+
+        ierr = solver_benchmark(A, b, x, PCJACOBI, &result); CHKERRQ(ierr);
+
+        PetscPrintf(PETSC_COMM_WORLD, "Size: %d, Iterations: %d, Time: %g sec, Residual: %g\n",
+                   sizes[i], result.iterations, result.solve_time, result.residual);
+
+        ierr = MatDestroy(&A); CHKERRQ(ierr);
+        ierr = VecDestroy(&b); CHKERRQ(ierr);
+        ierr = VecDestroy(&x); CHKERRQ(ierr);
+    }
+
+    return 0;
+}
+
+int main(int argc, char **argv) {
+    PetscErrorCode ierr;
+    LinearSolver solver;
+    Mat A;
+    Vec b, x;
+    PetscInt matrix_size = 1000;
+    char preconditioner[PETSC_MAX_PATH_LEN];
+    PetscBool test_mode = PETSC_FALSE, benchmark_mode = PETSC_FALSE;
+
+    // Инициализация
+    ierr = solver_initialize(argc, argv); CHKERRQ(ierr);
+
+    // Set default preconditioner
+    ierr = PetscStrncpy(preconditioner, PCJACOBI, sizeof(preconditioner)); CHKERRQ(ierr);
+
+    // Обработка аргументов командной строки
+    ierr = PetscOptionsGetInt(NULL, NULL, "-n", &matrix_size, NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetString(NULL, NULL, "-pc_type", preconditioner, sizeof(preconditioner), NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(NULL, NULL, "-test", &test_mode, NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(NULL, NULL, "-benchmark", &benchmark_mode, NULL); CHKERRQ(ierr);
+
+    if (test_mode) {
+        PetscPrintf(PETSC_COMM_WORLD, "Running in test mode...\n");
+        // Здесь можно запустить тесты
+        ierr = run_benchmarks(); CHKERRQ(ierr);
+    } else if (benchmark_mode) {
+        PetscPrintf(PETSC_COMM_WORLD, "Running benchmarks...\n");
+        ierr = run_benchmarks(); CHKERRQ(ierr);
+    } else {
+        // Основной режим работы
+        PetscPrintf(PETSC_COMM_WORLD, "Creating Laplace matrix of size %D...\n", matrix_size);
+        ierr = create_laplace_matrix(matrix_size, &A); CHKERRQ(ierr);
+        ierr = create_rhs_vector(matrix_size, &b); CHKERRQ(ierr);
+
+        // Создание решателя
+        ierr = solver_create(&solver, A); CHKERRQ(ierr);
+        ierr = solver_set_preconditioner(&solver, preconditioner); CHKERRQ(ierr);
+        ierr = solver_setup(&solver); CHKERRQ(ierr);
+
+        // Решение системы
+        ierr = solver_solve(&solver, b, solver.x); CHKERRQ(ierr);
+
+        // Вывод информации
+        ierr = solver_print_info(&solver); CHKERRQ(ierr);
+
+        // Очистка
+        ierr = solver_destroy(&solver); CHKERRQ(ierr);
+        ierr = MatDestroy(&A); CHKERRQ(ierr);
+        ierr = VecDestroy(&b); CHKERRQ(ierr);
+    }
+
+    ierr = solver_finalize();
+    return ierr;
+}
